@@ -12,16 +12,11 @@ const SetupScreen = () => {
     const navigation = useNavigation()
     const [loading, setLoading] = useState(false)
     const [serverAddr, setServerAddr] = useState("")
-    const [eKey, setEKey] = useState("")
     const [email, setEmail] = useState("")
-    const [name, setName] = useState("")
     const [pass, setPass] = useState("")
     const [pass2, setPass2] = useState("")
 
-    const handleRandomKey = () => {
-        setEKey(randomString(128))
-    }
-
+    
     if(loading){
         return(
             <View>
@@ -32,30 +27,6 @@ const SetupScreen = () => {
 
     return (
         <KeyboardAvoidingView style={[styles.wrapper]} >
-            <View style={[styles.section_wrapper]}>
-                <Text style={[styles.header]}>Connection</Text>
-                <TextInput
-                    style={[styles.input]}
-                    placeholder='Server Address'
-                    value={serverAddr}
-                    onChange={text => setServerAddr(text)}
-                />
-                <View style={[styles.enc_wrapper]}>
-                    <TextInput
-                        style={[styles.input, styles.input_btn_right]}
-                        placeholder='Encryption Key'
-                        value={eKey}
-                        onChange={text => setEKey(text)}
-                    />
-                    <TouchableOpacity
-                        style={[styles.btn, styles.btn_purple, styles.btn_right]}
-                        onPress={handleRandomKey}
-                    >
-                        <Text style={[styles.btn_purple_text]}>Random</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-                <Text style={[styles.header]}>Account</Text>
             <View style={[Standard.wrapper_80]}>
                 <TextInput
                     style={[Input.input]}

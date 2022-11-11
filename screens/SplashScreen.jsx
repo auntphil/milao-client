@@ -13,6 +13,14 @@ const SplashScreen = () => {
         navigation.navigate("Create Account")
     }
 
+    const clearURI = async () => {
+        try{
+            await SecureStore.deleteItemAsync('uri')
+        }catch(error){
+            console.error
+        }
+    }
+
     return (
         <View style={styles.wrapper} >
             <Text style={Standard.title}>Mílao Agápi</Text>
@@ -44,6 +52,14 @@ const SplashScreen = () => {
                     </Text>
                 </TouchableOpacity>
             </View>
+                <TouchableOpacity
+                    style={[Btn.btn, Btn.purple]}
+                    onPress={() => clearURI()}
+                >
+                    <Text style={[Btn.purple_text]}>
+                        Clear URI Storage
+                    </Text>
+            </TouchableOpacity>
         </View>
     )
     }
