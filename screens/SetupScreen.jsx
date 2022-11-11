@@ -1,34 +1,53 @@
-import { ActivityIndicator, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, KeyboardAvoidingView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
+import * as SecureStore from 'expo-secure-store'
 import Btn from '../styles/Buttons'
 import Input from '../styles/Input'
 import Standard from '../styles/Standard'
 import { useMutation } from '@apollo/client'
 import { CREATE_USER } from '../Schema/Mutation'
 
-const SetupScreen = () => {
+const SetupScreen = ({setUser}) => {
 
     const navigation = useNavigation()
-    const [loading, setLoading] = useState(false)
-    const [serverAddr, setServerAddr] = useState("")
     const [email, setEmail] = useState("")
     const [pass, setPass] = useState("")
     const [pass2, setPass2] = useState("")
-    const [userData, {data, createUserLoading, error}] = useMutation(CREATE_USER)
+    const [userData, {data, loading, error}] = useMutation(CREATE_USER)
 
     const createUser = () => {
-        if(pass === pass2){
-            userData({variables: {registerInput: {email: email, password: pass}}})
-        }else{
-            console.error('Passwords do not match')
+        if(pass !== pass2){
+            ToastAndroid.showWithGravity("Passwords Do Not Match.", ToastAndroid.LONG, ToastAndroid.CENTER)
+            return
         }
+        if(pass.length < 5){
+            ToastAndroid.showWithGravity("Password Must Be Atleast 5 Characters", ToastAndroid.LONG, ToastAndroid.CENTER)
+            return
+        }
+        userData({variables: {registerInput: {email: email, password: pass}}})
     }
 
-    console.log(data)
-
-    if (error) console.error(error);
-    if(loading || createUserLoading){
+    if(typeof data !== 'undefined'){
+       const saveUser = async () => {
+           SecureStore.setItemAsync('refresh', data.registerUser.refresh)
+            .then(() => {
+                setUser({
+                    id: data.registerUser._id,
+                    email: data.registerUser.email,
+                    token: data.registerUser.token
+                })
+                navigation.replace("Home")
+            })
+            .catch(err => ToastAndroid.showWithGravity(err, ToastAndroid.LONG, ToastAndroid.CENTER))
+       }
+       saveUser()
+    }
+    
+    if (error){
+        ToastAndroid.showWithGravity(error.message, ToastAndroid.LONG, ToastAndroid.CENTER)
+    }
+    if(loading){
         return(
             <View>
                 <ActivityIndicator size='large' />

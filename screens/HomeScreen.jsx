@@ -2,12 +2,11 @@ import { KeyboardAvoidingView, StyleSheet, Text, TouchableOpacity, View } from '
 import React from 'react'
 import { useNavigation } from '@react-navigation/native'
 
-const HomeScreen = () => {
-
+const HomeScreen = ({user}) => {
     const navigation = useNavigation()
 
     const handleLogout = () => {
-        navigation.replace("Splash")
+        //navigation.replace("Splash")
     }
 
     return (
@@ -15,6 +14,7 @@ const HomeScreen = () => {
             style={styles.wrapper}
         >
         <Text>Home Screen</Text>
+        <Text>{user.email}</Text>
         <TouchableOpacity
                     onPress={handleLogout}
                     style={styles.button}

@@ -1,18 +1,15 @@
-import React, { useEffect, useState } from 'react'
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
+import React, { useState, useEffect } from 'react'
+import { ApolloProvider } from '@apollo/client';
+import { ApolloClient, InMemoryCache } from '@apollo/client';
 import * as SecureStore from 'expo-secure-store'
 
-import HomeScreen from './screens/HomeScreen';
-import SetupScreen from './screens/SetupScreen';
-import SplashScreen from './screens/SplashScreen';
 import URIScreen from './screens/URIScreen';
+import LoadingScreen from './screens/LoadingScreen';
+import StackNav from './StackNav';
 
-
-const Stack = createNativeStackNavigator()
-
+/**
+ * Checking Secure Storage for Server URI
+ */
 async function getURI(){
   return SecureStore.getItemAsync('uri')
     .then( res => res ? res : null)
@@ -20,11 +17,10 @@ async function getURI(){
 }
 
 
-
 export default function App() {
   const [loading, setLoading] = useState(true)
-  const [uri, setUri] = useState('')
   const [connect, setConnect] = useState(false)
+  const [uri, setUri] = useState('')
 
   useEffect(() => {
     const fetchData = async () => {
@@ -40,55 +36,24 @@ export default function App() {
       .catch(console.error)
   }, [])
 
+  
   const startConnection = () => {
     setConnect(true)
   }
 
-  if(loading){
-    return(
-      <View style={[styles.container]}>
-          <Text style={styles.title}>Mílao Agápi</Text>
-          <ActivityIndicator size='large' />
-      </View>
-    )
-  }
-  
-  
-  if(!connect){
-    return(
-      <URIScreen uri={uri} setUri={setUri} startConnection={startConnection}  />
-    )
-  }else{
+  if(loading) return <LoadingScreen />
 
+  if(!connect) return <URIScreen uri={uri} setUri={setUri} startConnection={startConnection}  />
+  else{
     const client = new ApolloClient({
       uri: uri,
       cache: new InMemoryCache(),
     });
-
     return (
-      <ApolloProvider client={client}>
-        <NavigationContainer>
-          <Stack.Navigator>
-            <Stack.Screen name="Splash" options={{ headerShown: false }} component={SplashScreen} />
-            <Stack.Screen name="Create Account" component={SetupScreen} />
-            <Stack.Screen name="Home" component={HomeScreen} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </ApolloProvider>
+        <ApolloProvider client={client}>
+          <StackNav />
+        </ApolloProvider>
     );
   }
-}
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 54,
-    fontWeight: '700',
-    marginBottom: 15
-},
-});
+}
