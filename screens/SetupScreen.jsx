@@ -1,11 +1,11 @@
 import { ActivityIndicator, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'
 import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
-import { randomString } from '../utils/helpers'
 import Btn from '../styles/Buttons'
 import Input from '../styles/Input'
 import Standard from '../styles/Standard'
+import { useMutation } from '@apollo/client'
+import { CREATE_USER } from '../Schema/Mutation'
 
 const SetupScreen = () => {
 
@@ -15,9 +15,20 @@ const SetupScreen = () => {
     const [email, setEmail] = useState("")
     const [pass, setPass] = useState("")
     const [pass2, setPass2] = useState("")
+    const [userData, {data, createUserLoading, error}] = useMutation(CREATE_USER)
 
-    
-    if(loading){
+    const createUser = () => {
+        if(pass === pass2){
+            userData({variables: {registerInput: {email: email, password: pass}}})
+        }else{
+            console.error('Passwords do not match')
+        }
+    }
+
+    console.log(data)
+
+    if (error) console.error(error);
+    if(loading || createUserLoading){
         return(
             <View>
                 <ActivityIndicator size='large' />
@@ -31,26 +42,25 @@ const SetupScreen = () => {
                 <TextInput
                     style={[Input.input]}
                     placeholder='Email Address'
-                    value={email}
-                    onChange={text => setEmail(text)}
+                    onChangeText={text => setEmail(text)}
                 />
                 <TextInput
                     style={[Input.input]}
                     placeholder='Password'
                     secureTextEntry={true}
+                    onChangeText={text => setPass(text)}
                     value={pass}
-                    onChange={text => setPass(text)}
                 />
                 <TextInput
                     style={[Input.input]}
                     secureTextEntry={true}
                     placeholder='Verify Password'
+                    onChangeText={text => setPass2(text)}
                     value={pass2}
-                    onChange={text => setPass2(text)}
                 />
             </View>
             <TouchableOpacity
-                onPress={() => {}}
+                onPress={() => createUser()}
                 style={[Btn.btn, Btn.purple]}
             >
                 <Text style={[Btn.text, Btn.purple_text]}>
