@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { ApolloProvider } from '@apollo/client';
-import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { ApolloProvider, createHttpLink, ApolloClient, InMemoryCache} from '@apollo/client';
+import { setContext } from '@apollo/client/link/context'
 import * as SecureStore from 'expo-secure-store'
 
 import URIScreen from './screens/URIScreen';
 import LoadingScreen from './screens/LoadingScreen';
 import StackNav from './StackNav';
+import Loading from './screens/LoadingScreen';
 
 /**
  * Checking Secure Storage for Server URI
@@ -21,6 +22,7 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [connect, setConnect] = useState(false)
   const [uri, setUri] = useState('')
+  const [token, setToken] = useState('')
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,7 +31,6 @@ export default function App() {
         setUri(uri)
         setConnect(true)
       }
-      setLoading(false)
     }
 
     fetchData()
@@ -41,19 +42,48 @@ export default function App() {
     setConnect(true)
   }
 
-  if(loading) return <LoadingScreen />
-
+  
   if(!connect) return <URIScreen uri={uri} setUri={setUri} startConnection={startConnection}  />
   else{
-    const client = new ApolloClient({
-      uri: uri,
-      cache: new InMemoryCache(),
-    });
-    return (
-        <ApolloProvider client={client}>
-          <StackNav />
-        </ApolloProvider>
-    );
+    SecureStore.getItemAsync('token')
+      .then( res => {
+        setToken(res)
+        setLoading(false)
+      })
+      .catch( err => {
+        console.error(err)
+        setLoading(false)
+      })
+      
+      if(loading) return <LoadingScreen />
+
+      //Creating Basic Connection 
+      const httpLink = createHttpLink({
+        uri: uri
+      })
+      
+      //Adding Auth Headers
+      const authLink = setContext((_, {headers}) => {
+        return {
+          headers: {
+            ...headers,
+            Authorization: token ? `Bearer ${token}` : ''
+          }
+        }
+      })
+
+      const client = new ApolloClient({
+        link: authLink.concat(httpLink),
+        cache: new InMemoryCache(),
+      });
+
+      return (
+          <ApolloProvider client={client}>
+            <StackNav />
+          </ApolloProvider>
+      );
+      
+
   }
 
 }
