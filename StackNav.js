@@ -18,7 +18,7 @@ const StackNav = () => {
             <Stack.Navigator>
                 <Stack.Screen name="Home" options={{ headerShown: false }} >
                     {props => <HomeScreen {...props} user={user} />}
-                    </Stack.Screen>
+                </Stack.Screen>
                 <Stack.Screen name="Splash" options={{ headerShown: false }} component={SplashScreen} />
                 <Stack.Screen name="Create Account">
                     {props => <SetupScreen {...props} setUser={setUser} />}

@@ -2,6 +2,7 @@ import { KeyboardAvoidingView, StyleSheet, Text, TouchableOpacity } from 'react-
 import React from 'react'
 import * as SecureStore from 'expo-secure-store'
 import { useNavigation } from '@react-navigation/native'
+import ChatScreen from './ChatScreen.jsx'
 
 const HomeScreen = ({user}) => {
     const navigation = useNavigation()
@@ -29,6 +30,7 @@ const HomeScreen = ({user}) => {
         >
             <Text>Home Screen</Text>
             <Text>{user.email}</Text>
+            <ChatScreen />
             <TouchableOpacity
                 onPress={handleLogout}
                 style={styles.button}
