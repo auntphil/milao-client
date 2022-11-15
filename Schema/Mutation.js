@@ -10,6 +10,15 @@ const CREATE_USER = gql`
         }
     }
 `
+const LOGIN = gql`
+    mutation Mutation($loginInput: LoginInput) {
+    login(loginInput: $loginInput) {
+        _id
+        email
+        refresh
+        token
+    }
+}`
 
 const SEND_MESSAGE = gql`
     mutation Mutation($senderId: String!, $message: String!, $date: Float!, $extra: String!) {
@@ -35,4 +44,4 @@ const REMOVE_REACTION = gql`
     }
 `
 
-export { CREATE_USER, SEND_MESSAGE, SEND_REACTION, REMOVE_REACTION }
+export { CREATE_USER, LOGIN, SEND_MESSAGE, SEND_REACTION, REMOVE_REACTION }

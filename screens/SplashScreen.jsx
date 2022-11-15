@@ -9,10 +9,6 @@ const SplashScreen = () => {
 
     const navigation = useNavigation()
 
-    const handleSetup = () => {
-        navigation.navigate("Create Account")
-    }
-
     const clearURI = async () => {
         try{
             await SecureStore.deleteItemAsync('uri')
@@ -36,7 +32,7 @@ const SplashScreen = () => {
                 style={Btn.wrapper}
             >
                 <TouchableOpacity
-                    onPress={handleSetup}
+                    onPress={() => navigation.navigate("Create Account")}
                     style={[Btn.ghost, Btn.btn]}
                 >
                     <Text style={[Btn.text, Btn.ghost_text]}>
@@ -44,7 +40,7 @@ const SplashScreen = () => {
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    onPress={() => {}}
+                    onPress={() => navigation.navigate("Login")}
                     style={[Btn.ghost, Btn.btn]}
                 >
                     <Text style={[Btn.text, Btn.ghost_text]}>
