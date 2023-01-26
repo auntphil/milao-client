@@ -1,35 +1,46 @@
 import { KeyboardAvoidingView, StyleSheet, Text, TouchableOpacity } from 'react-native'
 import React from 'react'
-import * as SecureStore from 'expo-secure-store'
 import { useNavigation } from '@react-navigation/native'
 import ChatScreen from './ChatScreen.jsx'
+import { useQuery } from '@apollo/client'
+import { GET_USER } from '../Schema/Query.js'
+import Loading from './LoadingScreen.jsx'
+import * as SecureStore from 'expo-secure-store'
 
-const HomeScreen = ({user}) => {
+const HomeScreen = () => {
     const navigation = useNavigation()
+    const {data, loading, error } = useQuery(GET_USER)
+    const handleLogout = async () => {
+        console.log('HomeScreen: handleLogout')
+        //Remove Refresh Token
+        //await SecureStore.deleteItemAsync('refresh')
+        //await SecureStore.deleteItemAsync('token')
+        navigation.replace('Splash')
+    }
+    
+    if(loading) return <Loading />
+    if(error){
+        if(error.message === "Not Authorized"){
+            console.log('HomeScreen: Error')
+            handleLogout()
+            return <Loading />
+        }
+    }
 
     
-    const handleLogout = async () => {
-        //Remove Refresh Token
-        await SecureStore.deleteItemAsync('refresh')
-        await SecureStore.deleteItemAsync('token')
-        //Goto Login Screen
-        navigation.replace("Splash")
+    if(typeof data === 'undefined'){
+        handleLogout()
+        return <Loading />
     }
     
-    if(user === null || typeof(user.id) === 'undefined'){
-        //TODO Check Refresh Token
-        //TODO Request New Token
-        
-        //TODO No Token -> Go To Splash
-        handleLogout()
-    }
+    console.log(`HomeScreen: No Error`)
 
     return (
         <KeyboardAvoidingView
             style={styles.wrapper}
         >
             <Text>Home Screen</Text>
-            <Text>{user.email}</Text>
+            <Text>{data.user.email}</Text>
             <ChatScreen />
             <TouchableOpacity
                 onPress={handleLogout}

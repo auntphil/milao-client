@@ -9,7 +9,7 @@ import { useMutation } from '@apollo/client'
 import { LOGIN } from '../Schema/Mutation'
 import Loading from './LoadingScreen'
 
-const LoginScreen = ({setUser}) => {
+const LoginScreen = () => {
 
     const navigation = useNavigation()
     const [email, setEmail] = useState("")
@@ -22,15 +22,9 @@ const LoginScreen = ({setUser}) => {
 
     if(typeof data !== 'undefined'){
        const saveUser = async () => {
-            //setPageLoading(true)
            await SecureStore.setItemAsync('refresh', data.login.refresh)
            await SecureStore.setItemAsync('token', data.login.token)
             .then(() => {
-                setUser({
-                    id: data.login._id,
-                    email: data.login.email,
-                    token: data.login.token
-                })
                 navigation.replace("Home")
             })
             .catch(err => ToastAndroid.showWithGravity(err, ToastAndroid.LONG, ToastAndroid.CENTER))

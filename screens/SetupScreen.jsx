@@ -8,7 +8,7 @@ import Standard from '../styles/Standard'
 import { useMutation } from '@apollo/client'
 import { CREATE_USER } from '../Schema/Mutation'
 
-const SetupScreen = ({setUser}) => {
+const SetupScreen = () => {
 
     const navigation = useNavigation()
     const [email, setEmail] = useState("")
@@ -31,12 +31,8 @@ const SetupScreen = ({setUser}) => {
     if(typeof data !== 'undefined'){
        const saveUser = async () => {
            SecureStore.setItemAsync('refresh', data.registerUser.refresh)
+           SecureStore.setItemAsync('token', data.registerUser.token)
             .then(() => {
-                setUser({
-                    id: data.registerUser._id,
-                    email: data.registerUser.email,
-                    token: data.registerUser.token
-                })
                 navigation.replace("Home")
             })
             .catch(err => ToastAndroid.showWithGravity(err, ToastAndroid.LONG, ToastAndroid.CENTER))
