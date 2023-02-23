@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, StyleSheet, Text, TouchableOpacity } from 'react-native'
+import { KeyboardAvoidingView, StyleSheet, Text, TouchableOpacity, ToastAndroid } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import jwt_decode from "jwt-decode";
@@ -7,27 +7,76 @@ import jwt_decode from "jwt-decode";
 import Loading from './LoadingScreen.jsx'
 import * as SecureStore from 'expo-secure-store'
 
-const HomeScreen = () => {
-    const [loading, setLoading] = useState(true)
-    const [token, setToken] = useState('')
-    const data = ''
-    const error = false;
+async function getUserData(token, uri) {
+    try{
+        //Fetch User Data with token
+        const raw = await fetch(`${uri}/user`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer: ${token}`
+            }
+        })
+        const data = await raw.json()
+        if ( !data.success ){
+            //No User Returned
+            return false
+        }else{
+            //User found and returned
+            return data.user
+        }
+    }catch( err ){
+        console.error(err)
+        return false
+    }
+}
+
+const HomeScreen = (props) => {
+    //Navigation
     const navigation = useNavigation()
 
-    useEffect( () => {
-        const getToken = async () => {
-            SecureStore.getItemAsync('token')
-            .then( raw => {
-                const token = jwt_decode(raw);
+    //Props
+    const {uri} = props
 
-                //Checking if Token Exists and Not Expired
-                if(raw === null || token.exp < Math.round(Date.now() / 1000)){
+    //State
+    const [loading, setLoading] = useState(true)
+    const [token, setToken] = useState('')
+    const error = false;
+
+    useEffect( () => {
+        const checkUser = async () => {
+            SecureStore.getItemAsync('token')
+            .then( async raw => {
+                
+                //Checking if Token Exists
+                if(raw === null){
+                    console.log('No Token')
                     handleLogout()
                     return
                 }
 
-                setToken(raw)
-                setLoading(false)
+                //Decoding Token
+                const token = jwt_decode(raw);
+
+                //Checking if the token is expired
+                if( token.exp < Math.round(Date.now() / 1000)){
+                    console.log('expired Token')
+                    handleLogout()
+                    return
+                }
+
+                getUserData(raw, uri)
+                    .then( userData => {
+                        //No userData returned
+                        if(!userData){
+                            console.log('No userdata')
+                            handleLogout()
+                            return
+                        }
+        
+                        setToken(raw)
+                        setLoading(false)
+                    })
             })
             .catch( err => {
                 handleLogout()
@@ -35,7 +84,7 @@ const HomeScreen = () => {
             })
         }
         
-        getToken()
+        checkUser()
     },[])
 
     const handleLogout = async () => {

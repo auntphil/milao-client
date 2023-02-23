@@ -37,7 +37,7 @@ const StackNav = () => {
         <NavigationContainer>
             <Stack.Navigator>
                 <Stack.Screen name="Home" options={{ headerShown: false }} >
-                    {props => <HomeScreen {...props} />}
+                    {props => <HomeScreen {...props} uri={uri} />}
                 </Stack.Screen>
                 <Stack.Screen name="Setup" options={{ headerShown: false }} >
                     {props => <Setup uri={uri} setUri={setUri} />}
@@ -46,7 +46,7 @@ const StackNav = () => {
                     {props => <CreateAccount {...props} uri={uri} />}
                 </Stack.Screen>
                 <Stack.Screen name="Login">
-                    {props => <LoginScreen {...props} />}
+                    {props => <LoginScreen {...props} uri={uri} />}
                 </Stack.Screen>
             </Stack.Navigator>
         </NavigationContainer>

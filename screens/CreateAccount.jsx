@@ -39,7 +39,7 @@ const CreateAccount = (props) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({username: username, password: pass })
+            body: JSON.stringify({ username: username, password: pass })
         })
         //Converting Response from JSON
         .then( (raw) => raw.json() )
