@@ -8,13 +8,12 @@ import Btn from '../styles/Buttons'
 
 
 
-const URIScreen = (props) => {
+const URIScreen = () => {
 
-    const {uri, setUri, startConnection} = props
+    const [uri, setUri] = useState("")
 
     const saveURI = async (uri) => {
         await SecureStore.setItemAsync('uri', uri)
-        startConnection()
     }
 
     return (

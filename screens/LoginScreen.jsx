@@ -5,8 +5,6 @@ import * as SecureStore from 'expo-secure-store'
 import Btn from '../styles/Buttons'
 import Input from '../styles/Input'
 import Standard from '../styles/Standard'
-import { useMutation } from '@apollo/client'
-import { LOGIN } from '../Schema/Mutation'
 import Loading from './LoadingScreen'
 
 const LoginScreen = () => {
@@ -14,10 +12,8 @@ const LoginScreen = () => {
     const navigation = useNavigation()
     const [email, setEmail] = useState("")
     const [pass, setPass] = useState("")
-    const [userData, {data, loading, error}] = useMutation(LOGIN)
 
     const login = () => {
-        userData({variables: {loginInput: {email: email, password: pass}}})
     }
 
     if(typeof data !== 'undefined'){

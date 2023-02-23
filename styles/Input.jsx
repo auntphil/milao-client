@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 
 const Input = StyleSheet.create({
-    input: {
+    default: {
         width: '100%',
         backgroundColor: 'white',
         borderColor: 'black',

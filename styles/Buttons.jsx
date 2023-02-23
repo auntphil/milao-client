@@ -6,7 +6,7 @@ const Btn = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
-    btn: {
+    default: {
         width: '49%',
         padding: 15,
         borderRadius: 15,

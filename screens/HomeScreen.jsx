@@ -1,21 +1,43 @@
 import { KeyboardAvoidingView, StyleSheet, Text, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import ChatScreen from './ChatScreen.jsx'
-import { useQuery } from '@apollo/client'
-import { GET_USER } from '../Schema/Query.js'
 import Loading from './LoadingScreen.jsx'
 import * as SecureStore from 'expo-secure-store'
 
 const HomeScreen = () => {
+    const [loading, setLoading] = useState(true)
+    const [token, setToken] = useState('')
+    const data = ''
+    const error = false;
     const navigation = useNavigation()
-    const {data, loading, error } = useQuery(GET_USER)
+
+    useEffect( () => {
+        const getToken = async () => {
+            SecureStore.getItemAsync('token')
+            .then( token => {
+                if(token === null){
+                    handleLogout()
+                    return
+                }
+                setToken(token)
+                setLoading(false)
+            })
+            .catch( err => {
+                handleLogout()
+                return
+            })
+        }
+        
+        getToken()
+    },[])
+
     const handleLogout = async () => {
         console.log('HomeScreen: handleLogout')
-        //Remove Refresh Token
-        //await SecureStore.deleteItemAsync('refresh')
-        //await SecureStore.deleteItemAsync('token')
-        navigation.replace('Splash')
+        //Remove Tokens
+        await SecureStore.deleteItemAsync('refresh')
+        await SecureStore.deleteItemAsync('token')
+        navigation.replace('Setup')
     }
     
     if(loading) return <Loading />
@@ -27,21 +49,14 @@ const HomeScreen = () => {
         }
     }
 
-    
-    if(typeof data === 'undefined'){
-        handleLogout()
-        return <Loading />
-    }
-    
-    console.log(`HomeScreen: No Error`)
 
     return (
         <KeyboardAvoidingView
             style={styles.wrapper}
         >
             <Text>Home Screen</Text>
-            <Text>{data.user.email}</Text>
-            <ChatScreen />
+            <Text>EMAIL</Text>
+            <Text>Token: {token}</Text>
             <TouchableOpacity
                 onPress={handleLogout}
                 style={styles.button}

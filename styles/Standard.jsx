@@ -13,6 +13,11 @@ const Standard = StyleSheet.create({
     text: {
         fontSize: 15
     },
+    wrapper: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     wrapper_80: {
         width: '80%',
         marginBottom: 5,

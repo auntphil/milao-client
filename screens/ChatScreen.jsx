@@ -1,19 +1,16 @@
-import { useQuery } from "@apollo/client"
+import { useState } from "react"
 import { KeyboardAvoidingView, Text } from "react-native"
-import { GET_MESSAGES } from "../Schema/Query"
 import ChatBubble from "./components/ChatBubble"
 import Loading from "./LoadingScreen"
 
 const ChatScreen = () => {
-    const {data, loading, error} = useQuery(GET_MESSAGES)
-
+    const [loading, setLoading] = useState(true)
     if(loading) return <Loading />
-    if(error) console.error(error.message)
 
     return (
         <KeyboardAvoidingView>
             {
-                data.messages.map( msg => <ChatBubble message={msg} /> )
+                <ChatBubble message={['message','message2']} />
             }
         </KeyboardAvoidingView>
     )
