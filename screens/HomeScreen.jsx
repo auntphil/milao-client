@@ -1,7 +1,9 @@
 import { KeyboardAvoidingView, StyleSheet, Text, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
-import ChatScreen from './ChatScreen.jsx'
+import jwt_decode from "jwt-decode";
+
+//Screens
 import Loading from './LoadingScreen.jsx'
 import * as SecureStore from 'expo-secure-store'
 
@@ -15,12 +17,16 @@ const HomeScreen = () => {
     useEffect( () => {
         const getToken = async () => {
             SecureStore.getItemAsync('token')
-            .then( token => {
-                if(token === null){
+            .then( raw => {
+                const token = jwt_decode(raw);
+
+                //Checking if Token Exists and Not Expired
+                if(raw === null || token.exp < Math.round(Date.now() / 1000)){
                     handleLogout()
                     return
                 }
-                setToken(token)
+
+                setToken(raw)
                 setLoading(false)
             })
             .catch( err => {
