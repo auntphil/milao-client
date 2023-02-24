@@ -41,7 +41,6 @@ export const AuthProvider = ({children}) => {
             await SecureStore.setItemAsync('authTokens', JSON.stringify(data))
             return true
         }else{
-            console.log('Unable to log in')
             return false
         }
     }

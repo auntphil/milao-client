@@ -17,20 +17,22 @@ const LoginScreen = (props) => {
 
     //Get Context
     const {userLogin} = useContext(AuthContext)
-
-    const login = async () => {
-        const response = await userLogin(username, password)
-        console.log(response)
-        if(response){
-            navigation.replace('Home')
-        }
-    }
     
     //State
     const [username, setUsername] = useState("andrew")
     const [password, setPassword] = useState("password")
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
+
+    const login = async () => {
+        const response = await userLogin(username, password)
+        console.log(response)
+        if(response){
+            navigation.replace('Home')
+        } else {
+            setError("Incorrect Username or Password")
+        }
+    }
 
     if(typeof data !== 'undefined'){
        const saveUser = async () => {
@@ -45,9 +47,8 @@ const LoginScreen = (props) => {
     }
     
     if (error){
-        ToastAndroid.showWithGravity(error.message, ToastAndroid.LONG, ToastAndroid.CENTER)
+        ToastAndroid.showWithGravity(error, ToastAndroid.LONG, ToastAndroid.CENTER)
     }
-    if(loading){ return <Loading /> }
 
     return (
         <KeyboardAvoidingView style={[styles.wrapper]} >
