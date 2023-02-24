@@ -5,5 +5,4 @@ import StackNav from './StackNav';
 export default function App() {
   //Start App
   return <StackNav />
-
 }

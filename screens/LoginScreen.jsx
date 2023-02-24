@@ -1,7 +1,8 @@
-import { ActivityIndicator, KeyboardAvoidingView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native'
+import React, { useContext, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import * as SecureStore from 'expo-secure-store'
+import AuthContext from '../context/AuthContext'
 
 //Styles
 import Btn from '../styles/Buttons'
@@ -13,39 +14,23 @@ const LoginScreen = (props) => {
 
     //Navigation
     const navigation = useNavigation()
-    
-    //Props
-    const {uri} = props
+
+    //Get Context
+    const {userLogin} = useContext(AuthContext)
+
+    const login = async () => {
+        const response = await userLogin(username, password)
+        console.log(response)
+        if(response){
+            navigation.replace('Home')
+        }
+    }
     
     //State
     const [username, setUsername] = useState("andrew")
-    const [pass, setPass] = useState("password")
+    const [password, setPassword] = useState("password")
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
-
-    const login = () => {
-
-        //Attempting to Login as user
-        fetch(`${uri}/user/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({username: username, password: pass })
-        })
-        //Converting Response from JSON
-        .then( (raw) => raw.json() )
-        .then( async (data) => {
-            if ( !data.success ){
-                ToastAndroid.showWithGravity(data.message , ToastAndroid.LONG, ToastAndroid.CENTER)
-            }else{
-                await SecureStore.setItemAsync("token", data.token)
-                await SecureStore.setItemAsync("rtoken", data.rtoken)
-                navigation.replace('Home')
-            }
-        })
-        .catch( err => ToastAndroid.showWithGravity(err, ToastAndroid.LONG, ToastAndroid.CENTER) )
-    }
 
     if(typeof data !== 'undefined'){
        const saveUser = async () => {
@@ -77,8 +62,8 @@ const LoginScreen = (props) => {
                     style={[Input.default]}
                     placeholder='Password'
                     secureTextEntry={true}
-                    onChangeText={text => setPass(text)}
-                    value={pass}
+                    onChangeText={text => setPassword(text)}
+                    value={password}
                 />
             </View>
             <TouchableOpacity

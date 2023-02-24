@@ -1,21 +1,21 @@
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
-import * as SecureStore from 'expo-secure-store'
 
 import Btn from '../styles/Buttons'
 import Input from '../styles/Input'
 import Standard from '../styles/Standard'     
+import AuthContext from '../context/AuthContext'
 
-const Setup = (props) => {
-
-    const {uri, setUri} = props
-
+const Setup = () => {
+    //Setup Navigation
     const navigation = useNavigation()
 
-    const saveURI = async (uri) => {
-        await SecureStore.setItemAsync('uri', uri)
-    }
+    //Get Context
+    const {uri, saveUri} = useContext(AuthContext)
+
+    //State
+    const [uriInput, setUriInput] = useState(uri)
 
     return (
         <View style={Standard.wrapper} >
@@ -52,14 +52,14 @@ const Setup = (props) => {
                 <Text style={Standard.text}>You must designate a server before continuing.</Text>
                 <View>
                     <TextInput
-                        onChangeText={text => setUri(text)}
+                        onChangeText={text => setUriInput(text)}
                         style={[Input.default]}
                         placeholder="Server Address"
-                        value={uri}
+                        value={uriInput}
                         />
                     <TouchableOpacity
                         style={[Btn.default, Btn.purple]}
-                        onPress={() => saveURI(uri)}
+                        onPress={() => saveUri(uriInput)}
                         >
                             <Text style={[Btn.purple_text]}>
                                 Save
