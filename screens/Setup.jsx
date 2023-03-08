@@ -12,10 +12,11 @@ const Setup = () => {
     const navigation = useNavigation()
 
     //Get Context
-    const {uri, saveUri} = useContext(AuthContext)
+    const {baseUrl, saveBaseUrl} = useContext(AuthContext)
 
     //State
-    const [uriInput, setUriInput] = useState(uri)
+    const [newUrl, setNewUrl] = useState(baseUrl)
+
 
     return (
         <View style={Standard.wrapper} >
@@ -52,14 +53,14 @@ const Setup = () => {
                 <Text style={Standard.text}>You must designate a server before continuing.</Text>
                 <View>
                     <TextInput
-                        onChangeText={text => setUriInput(text)}
+                        onChangeText={text => setNewUrl(text)}
                         style={[Input.default]}
                         placeholder="Server Address"
-                        value={uriInput}
+                        value={newUrl}
                         />
                     <TouchableOpacity
                         style={[Btn.default, Btn.purple]}
-                        onPress={() => saveUri(uriInput)}
+                        onPress={() => saveBaseUrl(newUrl)}
                         >
                             <Text style={[Btn.purple_text]}>
                                 Save

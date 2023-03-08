@@ -1,47 +1,109 @@
 import {createContext, useEffect, useState} from 'react'
 import * as SecureStore from 'expo-secure-store'
 import jwt_decode from "jwt-decode";
-import { useNavigation } from '@react-navigation/native';
-
+import Loading from '../screens/LoadingScreen';
 
 const AuthContext = createContext()
 
 export default AuthContext
 
 export const AuthProvider = ({children}) => {
-    const [authTokens, setAuthTokens] = useState("")
-    const [user, setUser] = useState("")
-    const [uri, setUri] = useState("")
+    const [authTokens, setAuthTokens] = useState()
+    const [user, setUser] = useState()
+    const [baseUrl, setBaseUrl] = useState()
     const [loading, setLoading] = useState(true)
-    
-    //Navigation
-    const navigation = useNavigation()
+    const [initialLoad, setInitialLoad] = useState(true)
 
-    const saveUri = async (uri) => {
-        setUri(uri)
-        await SecureStore.setItemAsync('uri', uri)
+    const saveBaseUrl = async (newUrl) => {
+        setBaseUrl(newUrl)
+        await SecureStore.setItemAsync('baseUrl', newUrl)
+    }
+
+    const userCreate = async (username, pass) => {
+        try{
+            //Attempting to Create a user
+            const response = await fetch(`${baseUrl}/user/signup`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: username, password: pass })
+            })
+            const data = await response.json()
+
+            //Checking if response is OK
+            if(response.status === 200){
+                SecureStore.setItemAsync('authTokens', JSON.stringify(data))
+                setAuthTokens(data)
+                setUser(jwt_decode(data.access))
+                return {response, data}
+            }else{
+                return {response, data}
+            }
+        }catch(err){
+            console.error(err)
+            return {
+                success: false,
+                message: 'Creating user'
+            }
+        }
     }
 
     const userLogin = async (username, password) => {
+        try{
+            //Send login request to API
+            const response = await fetch(`${baseUrl}/user/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({username: username, password: password })
+            })
+            const data =  await response.json()
 
-        //Attempting to Login as user
-        const response = await fetch(`${uri}/user/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({username: username, password: password })
-        })
-        const data =  await response.json()
+            
+            //Checking if response is OK
+            if(response.status === 200){
+                SecureStore.setItemAsync('authTokens', JSON.stringify(data))
+                setAuthTokens(data)
+                setUser(jwt_decode(data.access))
+                return {response, data}
+            }else{
+                return {response, data}
+            }
+        }catch(err){
+            console.error(`login: ${err}`)
+            return {
+                success: false,
+                message: 'Error Logging In'
+            }
+        }
 
-        if(response.status === 200){
-            console.log(data.access)
-            setAuthTokens(data)
-            setUser(jwt_decode(data.access))
-            await SecureStore.setItemAsync('authTokens', JSON.stringify(data))
-            return true
-        }else{
-            return false
+    }
+
+    const userLogout = async () => {
+        try{
+            if(authTokens){
+                const token = jwt_decode(authTokens.refresh)
+                //Attempting to Logout user
+                const response = await fetch(`${baseUrl}/user/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user_id: token.user_id })
+                })
+                const data =  await response.json()
+                
+                //Remove Tokens
+                await SecureStore.deleteItemAsync('authTokens')
+                setAuthTokens(null)
+                setUser(null)
+            }
+        } catch (err) {
+            console.error(`userLogout - ${err.message}`)
+            setAuthTokens(null)
+            setUser(null)
         }
     }
 
@@ -49,37 +111,50 @@ export const AuthProvider = ({children}) => {
         user:user,
         setUser:setUser,
         authTokens:authTokens,
-        uri:uri,
-        saveUri:saveUri,
-        userLogin:userLogin
+        setAuthTokens:setAuthTokens,
+        baseUrl:baseUrl,
+        saveBaseUrl:saveBaseUrl,
+        userLogin:userLogin,
+        userLogout:userLogout,
+        loading:loading,
+        userCreate:userCreate
     }
 
     useEffect(() => {
         const intialValues = async () => {
-            const authTokens = await SecureStore.getItemAsync('authTokens') ? JSON.parse( await SecureStore.getItemAsync('authTokens')) : null
-            const uri = await SecureStore.getItemAsync('uri') ? await SecureStore.getItemAsync('uri') : null
-            setAuthTokens(authTokens)
-            setUri(uri)
-        }
+            const InitialUrl = await SecureStore.getItemAsync('baseUrl') ? await SecureStore.getItemAsync('baseUrl') : null
+            const initialTokens = await SecureStore.getItemAsync('authTokens') ? JSON.parse( await SecureStore.getItemAsync('authTokens')) : null
 
+            setBaseUrl(InitialUrl)            
+            setAuthTokens(initialTokens)
+            setInitialLoad(false)
+        }
         intialValues()
     },[])
-
+    
     useEffect(() => {
-        if(authTokens){
-            try{
-                setUser(jwt_decode(authTokens.access))
-            } catch (err) {
-                console.error(err)
-                setAuthTokens(null)
+        const getUser = async () => {
+            
+            //Get Tokens from Secure Storage
+            if(authTokens){
+                try{
+                    setUser(jwt_decode(authTokens.access))
+                }catch(err){
+                    setAuthTokens(null)
+                    console.log(err)
+                }
             }
+            setLoading(false)
         }
-        setLoading(false)
-    },[authTokens, loading])
+
+        if(!initialLoad){
+            getUser()
+        }
+    },[authTokens, initialLoad])
 
     return(
         <AuthContext.Provider value={contextData}>
-            {loading ? null : children}
+            {loading ? <Loading /> : children}
         </AuthContext.Provider>
     )
 }

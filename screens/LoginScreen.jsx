@@ -25,12 +25,13 @@ const LoginScreen = (props) => {
     const [loading, setLoading] = useState(false)
 
     const login = async () => {
-        const response = await userLogin(username, password)
-        console.log(response)
-        if(response){
+        setLoading(true)
+        const {response, data} = await userLogin(username, password)
+        if(response.status === 200){
             navigation.replace('Home')
         } else {
-            setError("Incorrect Username or Password")
+            setError(data.message)
+            setLoading(true)
         }
     }
 
@@ -47,8 +48,10 @@ const LoginScreen = (props) => {
     }
     
     if (error){
-        ToastAndroid.showWithGravity(error, ToastAndroid.LONG, ToastAndroid.CENTER)
+        ToastAndroid.showWithGravity(error, ToastAndroid.LONG, ToastAndroid.TOP)
     }
+
+    if(loading) return <Loading />
 
     return (
         <KeyboardAvoidingView style={[styles.wrapper]} >

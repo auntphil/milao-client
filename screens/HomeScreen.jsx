@@ -1,117 +1,54 @@
-import { KeyboardAvoidingView, StyleSheet, Text, TouchableOpacity, ToastAndroid } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { KeyboardAvoidingView, StyleSheet, Text, TouchableOpacity } from 'react-native'
+import React, { useContext, useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
-import jwt_decode from "jwt-decode";
 
-//Screens
-import Loading from './LoadingScreen.jsx'
-import * as SecureStore from 'expo-secure-store'
+//Context
+import AuthContext from '../context/AuthContext.js';
 
-async function getUserData(token, uri) {
-    try{
-        //Fetch User Data with token
-        const raw = await fetch(`${uri}/user`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer: ${token}`
-            }
-        })
-        const data = await raw.json()
-        if ( !data.success ){
-            //No User Returned
-            return false
-        }else{
-            //User found and returned
-            return data.user
-        }
-    }catch( err ){
-        console.error(err)
-        return false
-    }
-}
+//Wrappers
+import useFetch from '../utils/useFetch.js';
+import Loading from './LoadingScreen.jsx';
 
-const HomeScreen = (props) => {
+const HomeScreen = () => {
     //Navigation
     const navigation = useNavigation()
 
-    //Props
-    const {uri} = props
+    //API
+    const api = useFetch()
 
+    //Get Context
+    const {user, userLogout} = useContext(AuthContext)
+    
     //State
-    const [loading, setLoading] = useState(true)
-    const [token, setToken] = useState('')
-    const error = false;
+    const [chatrooms, setChatrooms] = useState([])
+    const [loading, setLoading] = useState(false)
 
-    useEffect( () => {
-        const checkUser = async () => {
-            SecureStore.getItemAsync('token')
-            .then( async raw => {
-                
-                //Checking if Token Exists
-                if(raw === null){
-                    console.log('No Token')
-                    handleLogout()
-                    return
-                }
+    const handleLogout = () => {
+        setLoading(true)
+        userLogout()
+    }
 
-                //Decoding Token
-                const token = jwt_decode(raw);
-
-                //Checking if the token is expired
-                if( token.exp < Math.round(Date.now() / 1000)){
-                    console.log('expired Token')
-                    handleLogout()
-                    return
-                }
-
-                getUserData(raw, uri)
-                    .then( userData => {
-                        //No userData returned
-                        if(!userData){
-                            console.log('No userdata')
-                            handleLogout()
-                            return
-                        }
-        
-                        setToken(raw)
-                        setLoading(false)
-                    })
-            })
-            .catch( err => {
-                handleLogout()
-                return
-            })
-        }
-        
-        checkUser()
+    useEffect(() => {
+        getChatrooms()
     },[])
 
-    const handleLogout = async () => {
-        console.log('HomeScreen: handleLogout')
-        //Remove Tokens
-        await SecureStore.deleteItemAsync('refresh')
-        await SecureStore.deleteItemAsync('token')
-        navigation.replace('Setup')
-    }
-    
-    if(loading) return <Loading />
-    if(error){
-        if(error.message === "Not Authorized"){
-            console.log('HomeScreen: Error')
-            handleLogout()
-            return <Loading />
+    const getChatrooms = async () => {
+        const {response, data } = await api('/chatrooms', 'GET')
+
+        if(response.status===200){
+            setChatrooms(data)
         }
     }
 
+    if(loading) return <Loading />
 
     return (
         <KeyboardAvoidingView
             style={styles.wrapper}
         >
             <Text>Home Screen</Text>
-            <Text>EMAIL</Text>
-            <Text>Token: {token}</Text>
+            <Text>User: {user.displayname ? user.displayname : user.username}</Text>
+            {chatrooms.map( room => <Text key={room.chatroom_id}>{room.title}</Text>)}
             <TouchableOpacity
                 onPress={handleLogout}
                 style={styles.button}
