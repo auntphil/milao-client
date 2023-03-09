@@ -48,7 +48,11 @@ const HomeScreen = () => {
         >
             <Text>Home Screen</Text>
             <Text>User: {user.displayname ? user.displayname : user.username}</Text>
-            {chatrooms.map( room => <Text key={room.chatroom_id}>{room.title}</Text>)}
+            {chatrooms.map( room => (
+                <TouchableOpacity key={room.chatroom_id} onPress={() => navigation.navigate("Chatroom")}>
+                    <Text>{room.title}</Text>
+                </TouchableOpacity>
+            ))}
             <TouchableOpacity
                 onPress={handleLogout}
                 style={styles.button}

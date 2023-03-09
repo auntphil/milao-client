@@ -6,6 +6,7 @@ import HomeScreen from './screens/HomeScreen';
 import CreateAccount from './screens/CreateAccount';
 import Setup from './screens/Setup';
 import AuthContext from './context/AuthContext';
+import Chatroom from './screens/Chatroom';
 
 const Stack = createNativeStackNavigator()
 
@@ -33,6 +34,9 @@ const StackNav = () => {
         <Stack.Navigator>
             <Stack.Screen name="Home" options={{ headerShown: false }} >
                 {props => <HomeScreen {...props} />}
+            </Stack.Screen>
+            <Stack.Screen name="Chatroom" >
+                {props => <Chatroom {...props} />}
             </Stack.Screen>
         </Stack.Navigator>
     )
