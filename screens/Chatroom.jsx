@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useContext } from "react"
+import { GiftedChat } from 'react-native-gifted-chat'
 import { useNavigation } from "@react-navigation/native";
-import { Text } from "react-native";
 
 //Context
 import AuthContext from '../context/AuthContext.js';
@@ -41,7 +41,13 @@ const Chatroom = () => {
     
     if(loading) return <Loading />
     return (
-      <Text>Chatroom</Text>
+        <GiftedChat
+            messages={messages}
+            onSend={messages => onSend(messages)}
+            user={{
+                _id: user.id,
+            }}
+        />
     )
 }
 
