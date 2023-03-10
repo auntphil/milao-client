@@ -7,10 +7,14 @@ import AuthContext from '../context/AuthContext.js';
 
 //Wrappers
 import Loading from "./LoadingScreen";
+import useFetch from "../utils/useFetch.js";
 
 const Chatroom = () => {
   //Navigation
   const navigation = useNavigation()
+
+  //API
+  const api = useFetch()
 
   //Get Context
   const {user} = useContext(AuthContext)
@@ -20,19 +24,16 @@ const Chatroom = () => {
     const [messages, setMessages] = useState([])
     
     useEffect(() => {
-        setMessages([
-            {
-              _id: 1,
-              text: 'Hello developer',
-              createdAt: new Date(),
-              user: {
-                _id: 2,
-                name: 'React Native',
-                avatar: 'https://placeimg.com/140/140/any',
-              },
-            },
-          ])
-        setLoading(false)
+      const getChatrooms = async()=>{
+        const {response, data } = await api(`/chatrooms/1`, 'GET')
+          if( response.status === 200){
+            setMessages(data)
+            setLoading(false)
+          }else{
+            navigation.goBack()
+          }
+      }
+      getChatrooms()
     },[])
 
     const onSend = useCallback((messages = []) => {
@@ -45,7 +46,7 @@ const Chatroom = () => {
             messages={messages}
             onSend={messages => onSend(messages)}
             user={{
-                _id: user.id,
+                _id: user._id,
             }}
         />
     )

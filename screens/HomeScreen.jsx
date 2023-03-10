@@ -49,8 +49,9 @@ const HomeScreen = () => {
             <Text>Home Screen</Text>
             <Text>User: {user.displayname ? user.displayname : user.username}</Text>
             {chatrooms.map( room => (
-                <TouchableOpacity key={room.chatroom_id} onPress={() => navigation.navigate("Chatroom")}>
+                <TouchableOpacity key={room._id} onPress={() => navigation.navigate("Chatroom")}>
                     <Text>{room.title}</Text>
+                    <Text>{room.latest_message}</Text>
                 </TouchableOpacity>
             ))}
             <TouchableOpacity
