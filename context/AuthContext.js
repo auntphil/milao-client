@@ -91,7 +91,7 @@ export const AuthProvider = ({children}) => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ user_id: token.user_id })
+                    body: JSON.stringify({ _id: token._id })
                 })
                 const data =  await response.json()
                 
@@ -141,7 +141,7 @@ export const AuthProvider = ({children}) => {
                     setUser(jwt_decode(authTokens.access))
                 }catch(err){
                     setAuthTokens(null)
-                    console.log(err)
+                    console.error(err)
                 }
             }
             setLoading(false)
