@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import LoginScreen from './screens/LoginScreen';
@@ -8,11 +8,29 @@ import Setup from './screens/Setup';
 import AuthContext from './context/AuthContext';
 import Chatroom from './screens/Chatroom';
 
+import { io } from "socket.io-client";
+
 const Stack = createNativeStackNavigator()
+let socket = null
 
 const StackNav = () => {
 
-    const {user} = useContext(AuthContext)
+    useEffect(() => {
+        if(!socket){
+            socket = io(`${baseUrl}`);
+        }
+
+        socket.on("connect", () => {
+            const engine = socket.io.engine
+            console.log(engine.transport.name);
+
+            engine.on("hello", ({type, data}) => {
+                console.log(type, data)
+            })
+        })
+    },[user])
+
+    const {user, baseUrl} = useContext(AuthContext)
 
     if(!user){
         return(

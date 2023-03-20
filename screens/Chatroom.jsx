@@ -9,15 +9,17 @@ import AuthContext from '../context/AuthContext.js';
 import Loading from "./LoadingScreen";
 import useFetch from "../utils/useFetch.js";
 
+const _id = 1
+
 const Chatroom = () => {
   //Navigation
   const navigation = useNavigation()
-
+  
   //API
   const api = useFetch()
-
+  
   //Get Context
-  const {user} = useContext(AuthContext)
+  const {user, baseUrl} = useContext(AuthContext)
   
   //State
     const [loading, setLoading] = useState(true)
@@ -26,7 +28,7 @@ const Chatroom = () => {
     
     useEffect(() => {
       const getChatrooms = async()=>{
-        const {response, data } = await api(`/chatrooms/1`, 'GET')
+        const {response, data } = await api(`/chatrooms/${_id}`, 'GET')
           if( response.status === 200){
             setMessages(data)
             setLoading(false)
@@ -38,7 +40,7 @@ const Chatroom = () => {
     },[])
 
     const sendMessage = (msgs) => {
-      api('/chatrooms', 'POST', msgs)
+      api(`/chatrooms/${_id}`, 'POST', msgs)
       .then(({response,data}) => {
         if(response.status === 200){
           //Message Sent Properly
@@ -80,8 +82,7 @@ const Chatroom = () => {
       }catch(err){
         console.error(err)
       }
-    },[messages,sent])
-  
+    },[messages,sent])  
 
     if(loading) return <Loading />
     return (
